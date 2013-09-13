@@ -20,7 +20,9 @@ run_all(Modules) ->
     % Init statistics.
     [put(K, 0) || K <- [errors, success, tests]],
 
-    lists:foreach(fun run/1, Modules),
+    ModulesAndOutcomes = lists:map(fun run/1, Modules),
+
+    log_by_outcome(ModulesAndOutcomes),
 
     io:format("=========================================~n"
               "  Failed: ~p.  Success: ~p.  Total: ~p.~n~n", [
@@ -29,6 +31,21 @@ run_all(Modules) ->
                 get(tests) ]),
 
     erlang:halt(get(errors)).
+
+log_by_outcome(ModulesAndOutcomes) ->
+    io:format("\nFailures per Mudule:\n", []),
+    Failures = fun(E) -> not E end,
+    ModulesAndFailures = [{M, length(lists:filter(Failures, OC))} || {M, OC} <- ModulesAndOutcomes],
+    OrderByFailures = fun({_, FA}, {_, FB}) ->
+            FA >= FB
+    end,
+    [log_outcome(E) || E <- lists:sort(OrderByFailures, ModulesAndFailures)],
+    io:format("\n", []).
+
+log_outcome({_, 0}) ->
+    noop;
+log_outcome({Module, Failures}) ->
+    io:format("~p\t~p\n", [Module, Failures]).
 
 
 run(Module) ->
@@ -42,17 +59,19 @@ run(Module) ->
     TryTest = fun (Test) ->
         try
             Test(),
-            io:format("Etest passed.\n")
+            io:format("Etest passed.\n"),
+            true
         catch
             _:Error ->
                 io:format("Etest failed.\n"),
                 inc(errors),
                 io:format("ETEST_FAILED::~p~n", [Error]),
                 CleanTrace = clean_trace(erlang:get_stacktrace()),
-                io:format("Stacktrace:~n~p~n~n", [CleanTrace])
+                io:format("Stacktrace:~n~p~n~n", [CleanTrace]),
+                false
         end
     end,
-    lists:foreach(TryTest, ToRun).
+    {Module, lists:map(TryTest, ToRun)}.
 
 
 
