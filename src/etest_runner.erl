@@ -47,7 +47,7 @@ run(Module) ->
             _:Error ->
                 io:format("Etest failed.\n"),
                 inc(errors),
-                io:format("::~p~n", [Error]),
+                io:format("ETEST_FAILED::~p~n", [Error]),
                 CleanTrace = clean_trace(erlang:get_stacktrace()),
                 io:format("Stacktrace:~n~p~n~n", [CleanTrace])
         end
