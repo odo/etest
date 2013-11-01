@@ -33,7 +33,7 @@ run_all(Modules) ->
     erlang:halt(get(errors)).
 
 log_by_outcome(ModulesAndOutcomes) ->
-    io:format("\nFailures per Mudule:\n", []),
+    io:format("\nFailures per Module:\n", []),
     Failures = fun(E) -> not E end,
     ModulesAndFailures = [{M, length(lists:filter(Failures, OC))} || {M, OC} <- ModulesAndOutcomes],
     OrderByFailures = fun({_, FA}, {_, FB}) ->
