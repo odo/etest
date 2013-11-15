@@ -8,8 +8,9 @@
 
 -define (stderr (Msg), ?stderr(Msg, [])).
 
-auto_run() ->
-    io:format("starting etest-auto-runner.\n", []),
+auto_run(Modules) ->
+    io:format("starting etest-auto-runner.\nModules: ~p\n", [Modules]),
+    [load(M) || M <- Modules],
     sync:go(),
     sync:log([errors, warnings]),
     Callback = fun(Mods) ->
@@ -22,6 +23,13 @@ auto_run() ->
             end
     end,
     sync:onsync(Callback).
+
+load(Mod) ->
+    try
+        Mod:module_info()
+    catch
+        _:_ -> noop
+    end.
 
 test_mods(Mods) ->
     lists:usort([TestMod || TestMod <- [ mod_to_test_mod(M) || M <- Mods ], TestMod =/= undefined]).
