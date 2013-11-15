@@ -1,0 +1,4 @@
+inc	etest_runner.erl	/^            inc(success)$/
+module_info	etest_runner.erl	/^        Module:module_info(exports)$/
+run	etest_runner.erl	/^        nomatch =\/= re:run(atom_to_list(FunName),/
+run_all	etest_runner.erl	/^                    run_all(TestMods, false)$/

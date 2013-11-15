@@ -1,0 +1,4 @@
+#!/bin/sh
+
+erl -noshell -noinput -pa deps/*/ebin apps/*/ebin ebin -s etest_runner auto_run
+

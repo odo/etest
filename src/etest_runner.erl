@@ -8,6 +8,45 @@
 
 -define (stderr (Msg), ?stderr(Msg, [])).
 
+auto_run() ->
+    io:format("starting etest-auto-runner.\n", []),
+    sync:go(),
+    sync:log([errors, warnings]),
+    Callback = fun(Mods) ->
+            TestMods = test_mods(Mods),
+            io:format("running ~p ...\n", [TestMods]),
+            case TestMods of
+                [] -> noop;
+                _ ->
+                    run_all(TestMods, false)
+            end
+    end,
+    sync:onsync(Callback).
+
+test_mods(Mods) ->
+    lists:usort([TestMod || TestMod <- [ mod_to_test_mod(M) || M <- Mods ], TestMod =/= undefined]).
+
+mod_to_test_mod(Mod) ->
+    ModString = atom_to_list(Mod),
+    ModPostfix = lists:last(string:tokens(ModString, "_")),
+    TestModName = case ModPostfix of
+        "test" -> ModString;
+        _      -> ModString ++ "_test"
+    end,
+    ModCandidate = list_to_atom(TestModName),
+    case module_exists(TestModName) of
+        true  -> ModCandidate;
+        false -> undefined
+    end.
+
+module_exists(Module) ->
+    try Module:module_info() of
+        _InfoList ->
+            true
+    catch
+        _:_ ->
+            false
+    end.
 
 % The runner will be called without arguments in case no tests were found .
 % Print a descriptive error message, then exit.
@@ -17,6 +56,9 @@ run_all() ->
 
 
 run_all(Modules) ->
+    run_all(Modules, true).
+
+run_all(Modules, Halt) ->
     % Init statistics.
     [put(K, 0) || K <- [errors, success, tests]],
 
@@ -29,8 +71,10 @@ run_all(Modules) ->
                 get(errors),
                 get(success),
                 get(tests) ]),
-
-    erlang:halt(get(errors)).
+    case Halt of
+        true  -> erlang:halt(get(errors));
+        false -> noop
+    end.
 
 log_by_outcome(ModulesAndOutcomes) ->
     io:format("\nFailures per Module:\n", []),
