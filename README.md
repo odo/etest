@@ -150,4 +150,14 @@ execute a single test file.
 To pass additional arguments to the `erl` command you can use the
 environmant variable `ERL_AFLAGS`. E.g
 
-```ERL_AFLAGS="-config priv/config/test.config" deps/etest/bin/etest-runner``` 
+```ERL_AFLAGS="-config priv/config/test.config" deps/etest/bin/etest-runner```
+
+## Running the Tests automatically
+
+You can use etest to run your test automatically as soon as a source file changes (implementation or test).
+
+To do so call:
+`./deps/etest/bin/etest-auto-runner`
+
+You may want to pass parameters either to erl or to the compiler e.g.:
+`ERL_COMPILER_OPTIONS='[{i,"deps/lagerist/include"}]' ERL_AFLAGS="-config config/test.config" ./deps/etest/bin/etest-auto-runner`
