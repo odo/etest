@@ -9,7 +9,7 @@
 -define (stderr (Msg), ?stderr(Msg, [])).
 
 auto_run(Modules) ->
-    io:format("starting etest-auto-runner.\nModules: ~p\n", [Modules]),
+    io:format("starting etest-auto-runner.\n", []),
     [load(M) || M <- Modules],
     sync:go(),
     sync:log([errors, warnings]),
