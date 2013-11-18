@@ -42,7 +42,7 @@ mod_to_test_mod(Mod) ->
         _      -> ModString ++ "_test"
     end,
     ModCandidate = list_to_atom(TestModName),
-    case module_exists(TestModName) of
+    case module_exists(ModCandidate) of
         true  -> ModCandidate;
         false -> undefined
     end.
