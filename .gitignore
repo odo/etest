@@ -15,3 +15,6 @@
 # Ignore all log files.
 log
 logs
+
+# ignore dependencies
+deps
